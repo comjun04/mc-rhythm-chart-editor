@@ -1,0 +1,9 @@
+# Prettier for vscode only recognizes .prettierignore on project root. idk why
+
+# exclude asset-utils files
+packages/asset-utils/hardcoded
+packages/asset-utils/output
+packages/asset-utils/workdir
+
+# editor temp files
+*.sw?

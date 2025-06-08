@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 
 import type { Note } from '../types'
+import { cn } from '../utils'
 
 type LaneProps = {
   laneIndex: number
@@ -10,32 +11,57 @@ type LaneProps = {
 }
 
 const Lane = ({ laneIndex, rows, notes, onAddNote }: LaneProps) => {
-  const startRef = useRef<number | null>(null)
   const holdTimer = useRef<number | null>(null)
-  const [dragging, setDragging] = useState(false)
 
-  const handleTouchStart = (row: number) => {
-    startRef.current = row
-    holdTimer.current = setTimeout(() => setDragging(true), 200)
-  }
+  const [selectionStartRow, setSelectionStartRow] = useState(0)
+  const [selectionEndRow, setSelectionEndRow]=useState(0)
+  const [noteCreationMode, setNoteCreationMode] = useState(false)
+  const [selectingPointerId, setSelectingPointerId]=useState(0)
 
-  const handleTouchMove = (row: number) => {
-    if (dragging) {
-      // Highlight if desired
+  const handlePointerDown = (evt: PointerEvent, row: number) => {
+    if (noteCreationMode || holdTimer.current != null) return
+
+    setSelectingPointerId(evt.pointerId)
+    setSelectionStartRow(row)
+    if (evt.pointerType === 'touch') {
+      holdTimer.current = setTimeout(() => setNoteCreationMode(true), 200)
+    } else {
+      setNoteCreationMode(true)
     }
   }
 
-  const handleTouchEnd = (row: number) => {
-    if (holdTimer.current) clearTimeout(holdTimer.current)
+  const handlePointerMove = (evt: PointerEvent, row: number) => {
+    if (evt.pointerId !== selectingPointerId) return
 
-    const start = startRef.current
-    if (start == null) return
+    if (evt.pointerType === 'touch') {
+      if (!noteCreationMode && selectionStartRow !== row) {
+        // 홀드 대기시간 이전에 다른 row로 이동
+        // 노트 생성 작업 취소
+        clearTimeout(holdTimer.current)
+        holdTimer.current = null
+      }
+    }
+  }
 
-    if (!dragging) {
+  const handlePointerUp = (evt: PointerEvent, row: number) => {
+    if (!noteCreationMode || evt.pointerId !== selectingPointerId) {
+      // alert(`a ${noteCreationMode} ${evt.pointerId} ${selectingPointerId}`)
+      return
+    }
+
+    if (holdTimer.current) {
+      clearTimeout(holdTimer.current)
+      holdTimer.current = null
+    }
+
+    // alert('gen ok')
+    // alert(`a ${noteCreationMode} ${evt.pointerId} ${selectingPointerId} / ${selectionStartRow} ${row}`)
+
+    if (selectionStartRow === row) {
       onAddNote({ lane: laneIndex, row, type: 'short' })
     } else {
-      const top = Math.min(start, row)
-      const bottom = Math.max(start, row)
+      const top = Math.min(selectionStartRow, row)
+      const bottom = Math.max(selectionStartRow, row)
       onAddNote({
         lane: laneIndex,
         row: top,
@@ -44,13 +70,42 @@ const Lane = ({ laneIndex, rows, notes, onAddNote }: LaneProps) => {
       })
     }
 
-    setDragging(false)
-    startRef.current = null
+    setNoteCreationMode(false)
   }
 
   return (
-    <div className="flex-col flex">
-      {[...Array(rows)].map((_, rowIndex) => {
+    <div className="flex flex-col">
+      {/* grid */}
+      {[...Array(rows)].map((_, idx) => (
+        <div
+          key={idx}
+          className="h-6 w-[60px] border border-gray-500 relative"
+          onPointerDown={(evt) => handlePointerDown(evt, idx)}
+          onPointerMove={(evt) => handlePointerMove(evt, idx)}
+          onPointerUp={(evt)=>handlePointerUp(evt, idx)}
+          onPointerCancel={()=>alert('pointer cancelled')}
+        />
+      ))}
+
+      {/* notes */}
+      {notes.map((note, idx) => {
+        return (
+          <div
+            key={idx}
+            className={cn(
+              'w-[60px] absolute',
+              note.type === 'short' && 'bg-blue-700',
+              note.type === 'long' && 'bg-orange-700',
+            )}
+            style={{
+              height: 60,
+                top: 30
+            }}
+          />
+        )
+      })}
+
+      {/*[...Array(rows)].map((_, rowIndex) => {
         const note = notes.find(
           (n) =>
             (n.type === 'short' && n.row === rowIndex) ||
@@ -74,7 +129,7 @@ const Lane = ({ laneIndex, rows, notes, onAddNote }: LaneProps) => {
             onTouchEnd={() => handleTouchEnd(rowIndex)}
           />
         )
-      })}
+      })*/}
     </div>
   )
 }

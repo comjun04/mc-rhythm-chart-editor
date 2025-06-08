@@ -4,7 +4,7 @@ import Lane from './components/Lane'
 import type { Note } from './types'
 
 const LANES = 5
-const INITIAL_ROWS = 64
+const INITIAL_ROWS = 16
 
 const ChartEditor = () => {
   const [rows] = useState(INITIAL_ROWS)

@@ -28,6 +28,12 @@ type EditorMode = 'addShortNote' | 'addLongNote' | 'delete'
 type EditorState = {
   mode: EditorMode
   setMode: (newMode: EditorMode) => void
+
+  longNoteStartPos: {
+    lane: number
+    row: number
+  } | null
+  setLongNoteStartPos: (startPos: { lane: number; row: number } | null) => void
 }
 export const useEditorStore = create(
   immer<EditorState>((set) => ({
@@ -35,6 +41,16 @@ export const useEditorStore = create(
     setMode: (newMode) =>
       set((state) => {
         state.mode = newMode
+
+        if (newMode !== 'addLongNote') {
+          state.longNoteStartPos = null
+        }
+      }),
+
+    longNoteStartPos: null,
+    setLongNoteStartPos: (startPos) =>
+      set((state) => {
+        state.longNoteStartPos = startPos
       }),
   })),
 )

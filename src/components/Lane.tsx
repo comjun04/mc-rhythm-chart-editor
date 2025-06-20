@@ -13,7 +13,20 @@ type LaneProps = {
 }
 
 const Lane = ({ laneIndex, rows, onAddNote }: LaneProps) => {
-  const editorMode = useEditorStore((state) => state.mode)
+  const { editorMode, tempLongNoteStartPos, setTempLongNoteStartPos } =
+    useEditorStore(
+      useShallow((state) => {
+        const longNoteStartPosInCurrentLane =
+          state.longNoteStartPos?.lane === laneIndex
+        return {
+          editorMode: state.mode,
+          tempLongNoteStartPos: longNoteStartPosInCurrentLane
+            ? state.longNoteStartPos
+            : null,
+          setTempLongNoteStartPos: state.setLongNoteStartPos,
+        }
+      }),
+    )
   const { notes, addNote } = useChartStore(
     useShallow((state) => ({
       notes: state.notes,
@@ -88,10 +101,15 @@ const Lane = ({ laneIndex, rows, onAddNote }: LaneProps) => {
       {/* grid */}
       {[...Array(rows)].map((_, idx) => {
         const row = rows - idx - 1
+        const isLongNoteStartPos = tempLongNoteStartPos?.row === row
+
         return (
           <div
             key={row}
-            className="relative h-6 w-[60px] border border-gray-500"
+            className={cn(
+              'relative h-6 w-[60px] border border-gray-500',
+              isLongNoteStartPos && 'bg-orange-500/30',
+            )}
             onClick={() => {
               if (editorMode === 'addShortNote') {
                 addNote({
@@ -100,6 +118,21 @@ const Lane = ({ laneIndex, rows, onAddNote }: LaneProps) => {
                   type: 'short',
                   length: 1,
                 })
+              } else if (editorMode === 'addLongNote') {
+                if (tempLongNoteStartPos != null && tempLongNoteStartPos.lane === laneIndex) {
+                  if (tempLongNoteStartPos.row !== row) {
+                  addNote({
+                    lane: laneIndex,
+                    row: Math.min(tempLongNoteStartPos.row, row),
+                    type: 'long',
+                    length: Math.abs(tempLongNoteStartPos.row - row) + 1
+                  })
+                  }
+
+                  setTempLongNoteStartPos(null)
+                } else {
+                  setTempLongNoteStartPos({ lane: laneIndex, row })
+                }
               }
             }}
           />

@@ -1,5 +1,7 @@
 import { useRef, useState } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 
+import { useChartStore, useEditorStore } from '../store'
 import type { Note } from '../types'
 import { cn } from '../utils'
 
@@ -10,13 +12,21 @@ type LaneProps = {
   onAddNote: (note: Note) => void
 }
 
-const Lane = ({ laneIndex, rows, notes, onAddNote }: LaneProps) => {
+const Lane = ({ laneIndex, rows, onAddNote }: LaneProps) => {
+  const editorMode = useEditorStore((state) => state.mode)
+  const { notes, addNote } = useChartStore(
+    useShallow((state) => ({
+      notes: state.notes,
+      addNote: state.addNote,
+    })),
+  )
+
   const holdTimer = useRef<number | null>(null)
 
   const [selectionStartRow, setSelectionStartRow] = useState(0)
-  const [selectionEndRow, setSelectionEndRow]=useState(0)
+  const [selectionEndRow, setSelectionEndRow] = useState(0)
   const [noteCreationMode, setNoteCreationMode] = useState(false)
-  const [selectingPointerId, setSelectingPointerId]=useState(0)
+  const [selectingPointerId, setSelectingPointerId] = useState(0)
 
   const handlePointerDown = (evt: PointerEvent, row: number) => {
     if (noteCreationMode || holdTimer.current != null) return
@@ -74,62 +84,47 @@ const Lane = ({ laneIndex, rows, notes, onAddNote }: LaneProps) => {
   }
 
   return (
-    <div className="flex flex-col">
+    <div className="relative flex flex-col">
       {/* grid */}
-      {[...Array(rows)].map((_, idx) => (
-        <div
-          key={idx}
-          className="h-6 w-[60px] border border-gray-500 relative"
-          onPointerDown={(evt) => handlePointerDown(evt, idx)}
-          onPointerMove={(evt) => handlePointerMove(evt, idx)}
-          onPointerUp={(evt)=>handlePointerUp(evt, idx)}
-          onPointerCancel={()=>{}}
-        />
-      ))}
-
-      {/* notes */}
-      {notes.map((note, idx) => {
+      {[...Array(rows)].map((_, idx) => {
+        const row = rows - idx - 1
         return (
           <div
-            key={idx}
-            className={cn(
-              'w-[60px] absolute',
-              note.type === 'short' && 'bg-blue-700',
-              note.type === 'long' && 'bg-orange-700',
-            )}
-            style={{
-              height: 60,
-                top: 30
+            key={row}
+            className="relative h-6 w-[60px] border border-gray-500"
+            onClick={() => {
+              if (editorMode === 'addShortNote') {
+                addNote({
+                  lane: laneIndex,
+                  row,
+                  type: 'short',
+                  length: 1,
+                })
+              }
             }}
           />
         )
       })}
 
-      {/*[...Array(rows)].map((_, rowIndex) => {
-        const note = notes.find(
-          (n) =>
-            (n.type === 'short' && n.row === rowIndex) ||
-            (n.type === 'long' &&
-              rowIndex >= n.row &&
-              rowIndex < n.row + (n.length || 0)),
-        )
-        return (
-          <div
-            className="h-[24px] w-[60px] border border-gray-500"
-            style={{
-              backgroundColor:
-                note?.type === 'short'
-                  ? '#3af'
-                  : note?.type === 'long'
-                    ? '#f83'
-                    : 'transparent',
-            }}
-            onTouchStart={() => handleTouchStart(rowIndex)}
-            onTouchMove={() => handleTouchMove(rowIndex)}
-            onTouchEnd={() => handleTouchEnd(rowIndex)}
-          />
-        )
-      })*/}
+      {/* notes */}
+      {notes
+        .filter((note) => note.lane === laneIndex)
+        .map((note, idx) => {
+          return (
+            <div
+              key={idx}
+              className={cn(
+                'absolute w-[60px]',
+                note.type === 'short' && 'bg-blue-700',
+                note.type === 'long' && 'bg-orange-700',
+              )}
+              style={{
+                height: `${note.length * 1.5}rem`,
+                bottom: `${note.row * 1.5}rem`,
+              }}
+            />
+          )
+        })}
     </div>
   )
 }

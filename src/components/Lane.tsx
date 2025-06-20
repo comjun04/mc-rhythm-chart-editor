@@ -83,7 +83,7 @@ const Lane = ({ laneIndex, rows, notes, onAddNote }: LaneProps) => {
           onPointerDown={(evt) => handlePointerDown(evt, idx)}
           onPointerMove={(evt) => handlePointerMove(evt, idx)}
           onPointerUp={(evt)=>handlePointerUp(evt, idx)}
-          onPointerCancel={()=>alert('pointer cancelled')}
+          onPointerCancel={()=>{}}
         />
       ))}
 

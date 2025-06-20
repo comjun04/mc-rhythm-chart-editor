@@ -4,7 +4,6 @@ import { useShallow } from 'zustand/react/shallow'
 
 import Lane from './components/Lane'
 import { useEditorStore } from './store'
-import type { Note } from './types'
 import { cn } from './utils'
 
 const LANES = 5
@@ -12,7 +11,6 @@ const INITIAL_ROWS = 16
 
 const ChartEditor = () => {
   const [rows] = useState(INITIAL_ROWS)
-  const [notes, setNotes] = useState<Note[]>([])
 
   const { mode, setMode } = useEditorStore(
     useShallow((state) => ({
@@ -20,10 +18,6 @@ const ChartEditor = () => {
       setMode: state.setMode,
     })),
   )
-
-  const addNote = (note: Note) => {
-    setNotes((prev) => [...prev, note])
-  }
 
   return (
     <div className="relative flex touch-pan-y overflow-y-scroll p-4">
@@ -52,13 +46,7 @@ const ChartEditor = () => {
       </div>
 
       {[...Array(LANES)].map((_, laneIndex) => (
-        <Lane
-          key={laneIndex}
-          laneIndex={laneIndex}
-          rows={rows}
-          notes={notes.filter((n) => n.lane === laneIndex)}
-          onAddNote={addNote}
-        />
+        <Lane key={laneIndex} laneIndex={laneIndex} rows={rows} />
       ))}
     </div>
   )

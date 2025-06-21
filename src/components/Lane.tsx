@@ -84,9 +84,9 @@ const Lane = ({ laneIndex, rows }: LaneProps) => {
             <div
               key={idx}
               className={cn(
-                'absolute w-[60px]',
-                note.type === 'short' && 'bg-blue-700',
-                note.type === 'long' && 'bg-orange-700',
+                'absolute w-[60px] border-4',
+                note.type === 'short' && 'bg-blue-700/80 border-blue-950/70',
+                note.type === 'long' && 'bg-orange-700/80 border-orange-950/70',
               )}
               style={{
                 height: `${note.length * 1.5}rem`,

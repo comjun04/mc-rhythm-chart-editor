@@ -3,14 +3,20 @@ import { LuEraser, LuRectangleVertical, LuSquare } from 'react-icons/lu'
 import { useShallow } from 'zustand/react/shallow'
 
 import Lane from './components/Lane'
+import {
+  INITIAL_SECTORS,
+  LANES,
+  NOTE_HEIGHT_REM,
+  ROWS_PER_SECTOR,
+} from './constants'
 import { useEditorStore } from './store'
 import { cn } from './utils'
 
-const LANES = 5
-const INITIAL_ROWS = 16
-
 const ChartEditor = () => {
-  const [rows] = useState(INITIAL_ROWS)
+  const [sectors, setSectors] = useState(INITIAL_SECTORS)
+  const rows = sectors * ROWS_PER_SECTOR
+
+  const sectorHeightRem = NOTE_HEIGHT_REM * ROWS_PER_SECTOR
 
   const { mode, setMode } = useEditorStore(
     useShallow((state) => ({
@@ -20,7 +26,8 @@ const ChartEditor = () => {
   )
 
   return (
-    <div className="relative flex touch-pan-y overflow-y-scroll p-4">
+    <div className="relative h-full overflow-y-scroll">
+      {/* control buttons */}
       <div className="absolute right-4 top-4 z-10 flex flex-col gap-2">
         <button
           className={cn(
@@ -51,9 +58,34 @@ const ChartEditor = () => {
         </button>
       </div>
 
-      {[...Array(LANES)].map((_, laneIndex) => (
-        <Lane key={laneIndex} laneIndex={laneIndex} rows={rows} />
-      ))}
+      <div className="relative h-full overflow-y-scroll pt-4">
+        {/* lanes */}
+        <div className="absolute z-[1] flex flex-row bg-transparent px-4">
+          {[...Array(LANES)].map((_, laneIndex) => (
+            <Lane key={laneIndex} laneIndex={laneIndex} rows={rows} />
+          ))}
+        </div>
+
+        {/* sector background */}
+        <div className="absolute z-0 flex w-full flex-col pb-24">
+          {[...Array(sectors)].map((_, idx) => {
+            const sectorIndex = sectors - idx - 1
+            return (
+              <div
+                key={sectorIndex}
+                className={cn(
+                  'w-full',
+                  sectorIndex % 2 === 0 ? 'bg-gray-800/60' : 'bg-gray-900/60',
+                )}
+                style={{
+                  height: `${sectorHeightRem}rem`,
+                  bottom: `${sectorIndex * sectorHeightRem}rem`,
+                }}
+              />
+            )
+          })}
+        </div>
+      </div>
     </div>
   )
 }

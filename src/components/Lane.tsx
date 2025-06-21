@@ -1,5 +1,6 @@
 import { useShallow } from 'zustand/react/shallow'
 
+import { NOTE_HEIGHT_REM } from '../constants'
 import { useChartStore, useEditorStore } from '../store'
 import { cn } from '../utils'
 
@@ -33,6 +34,8 @@ const Lane = ({ laneIndex, rows }: LaneProps) => {
 
   return (
     <div className="relative flex flex-col">
+      {/* sector background */}
+
       {/* grid */}
       {[...Array(rows)].map((_, idx) => {
         const row = rows - idx - 1
@@ -90,8 +93,8 @@ const Lane = ({ laneIndex, rows }: LaneProps) => {
                 note.type === 'long' && 'border-orange-950/70 bg-orange-700/80',
               )}
               style={{
-                height: `${note.length * 1.5}rem`,
-                bottom: `${note.row * 1.5}rem`,
+                height: `${note.length * NOTE_HEIGHT_REM}rem`,
+                bottom: `${note.row * NOTE_HEIGHT_REM}rem`,
               }}
               onClick={() => {
                 if (editorMode === 'delete') {

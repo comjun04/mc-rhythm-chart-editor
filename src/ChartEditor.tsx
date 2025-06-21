@@ -61,6 +61,26 @@ const ChartEditor = () => {
       <div className="relative h-full overflow-y-scroll pt-4">
         {/* lanes */}
         <div className="absolute z-[1] flex flex-row bg-transparent px-4">
+          {/* left placeholder */}
+          <div className="flex flex-col pr-2">
+            {[...Array(sectors)].map((_, idx) => {
+              const sectorIndex = sectors - idx - 1
+              return (
+                <div
+                  key={sectorIndex}
+                  className={cn('flex flex-col items-end justify-end')}
+                  style={{
+                    height: `${sectorHeightRem}rem`,
+                  }}
+                >
+                  <span>
+                    #{sectorIndex} {sectorIndex * ROWS_PER_SECTOR + 1}
+                  </span>
+                </div>
+              )
+            })}
+          </div>
+          {/* real lane */}
           {[...Array(LANES)].map((_, laneIndex) => (
             <Lane key={laneIndex} laneIndex={laneIndex} rows={rows} />
           ))}
@@ -70,6 +90,7 @@ const ChartEditor = () => {
         <div className="absolute z-0 flex w-full flex-col pb-24">
           {[...Array(sectors)].map((_, idx) => {
             const sectorIndex = sectors - idx - 1
+
             return (
               <div
                 key={sectorIndex}

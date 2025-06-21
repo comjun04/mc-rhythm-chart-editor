@@ -1,3 +1,4 @@
+import { nanoid } from 'nanoid'
 import { create } from 'zustand'
 import { immer } from 'zustand/middleware/immer'
 
@@ -5,21 +6,26 @@ import { Note } from './types'
 
 type ChartState = {
   notes: Note[]
-  addNote: (note: Note) => void
-  removeNote: (idx: number) => void
+  addNote: (noteData: Omit<Note, 'id'>) => void
+  removeNote: (id: string) => void
 }
 export const useChartStore = create(
   immer<ChartState>((set) => ({
     notes: [],
-    addNote: (note) =>
+    addNote: (noteData) =>
       set((state) => {
         // TODO: 다른 노트랑 겹치는지 체크
-        state.notes.push(note)
+        state.notes.push({
+          id: nanoid(16),
+          ...noteData,
+        })
       }),
-    removeNote: (idx) =>
+    removeNote: (id) =>
       set((state) => {
-        if (idx < 0 || idx >= state.notes.length) return
-        state.notes.splice(idx, 1)
+        const idx = state.notes.findIndex((note) => note.id === id)
+        if (idx >= 0) {
+          state.notes.splice(idx, 1)
+        }
       }),
   })),
 )

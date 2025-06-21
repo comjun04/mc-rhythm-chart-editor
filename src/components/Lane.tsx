@@ -23,10 +23,11 @@ const Lane = ({ laneIndex, rows }: LaneProps) => {
         }
       }),
     )
-  const { notes, addNote } = useChartStore(
+  const { notes, addNote, removeNote } = useChartStore(
     useShallow((state) => ({
       notes: state.notes,
       addNote: state.addNote,
+      removeNote: state.removeNote,
     })),
   )
 
@@ -79,18 +80,23 @@ const Lane = ({ laneIndex, rows }: LaneProps) => {
       {/* notes */}
       {notes
         .filter((note) => note.lane === laneIndex)
-        .map((note, idx) => {
+        .map((note) => {
           return (
             <div
-              key={idx}
+              key={note.id}
               className={cn(
                 'absolute w-[60px] border-4',
-                note.type === 'short' && 'bg-blue-700/80 border-blue-950/70',
-                note.type === 'long' && 'bg-orange-700/80 border-orange-950/70',
+                note.type === 'short' && 'border-blue-950/70 bg-blue-700/80',
+                note.type === 'long' && 'border-orange-950/70 bg-orange-700/80',
               )}
               style={{
                 height: `${note.length * 1.5}rem`,
                 bottom: `${note.row * 1.5}rem`,
+              }}
+              onClick={() => {
+                if (editorMode === 'delete') {
+                  removeNote(note.id)
+                }
               }}
             />
           )

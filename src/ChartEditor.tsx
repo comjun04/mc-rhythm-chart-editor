@@ -40,7 +40,13 @@ const ChartEditor = () => {
         >
           <LuRectangleVertical size={24} />
         </button>
-        <button className="rounded bg-slate-900 p-2">
+        <button
+          className={cn(
+            'rounded bg-slate-900 p-2',
+            mode === 'delete' && 'bg-red-900',
+          )}
+          onClick={() => setMode('delete')}
+        >
           <LuEraser size={24} />
         </button>
       </div>

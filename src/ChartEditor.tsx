@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { LuEraser, LuRectangleVertical, LuSquare } from 'react-icons/lu'
+import { LuEraser, LuPlus, LuRectangleVertical, LuSquare } from 'react-icons/lu'
 import { useShallow } from 'zustand/react/shallow'
 
 import Lane from './components/Lane'
@@ -58,7 +58,16 @@ const ChartEditor = () => {
         </button>
       </div>
 
-      <div className="relative h-full overflow-y-scroll pt-4">
+      <div className="relative h-full overflow-y-scroll">
+        <div className="flex items-center justify-center p-12">
+          <button
+            className="flex flex-row items-center gap-2 rounded bg-gray-900 px-3 py-2"
+            onClick={() => setSectors((cur) => cur + 1)}
+          >
+            <LuPlus size={20} />
+            <span>Add Sector</span>
+          </button>
+        </div>
         {/* lanes */}
         <div className="absolute z-[1] flex flex-row bg-transparent px-4">
           {/* left placeholder */}
@@ -73,7 +82,7 @@ const ChartEditor = () => {
                     height: `${sectorHeightRem}rem`,
                   }}
                 >
-                  <span>
+                  <span className="text-nowrap">
                     #{sectorIndex} {sectorIndex * ROWS_PER_SECTOR + 1}
                   </span>
                 </div>

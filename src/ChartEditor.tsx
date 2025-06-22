@@ -1,16 +1,15 @@
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { useRef, useState } from 'react'
 import { LuEraser, LuPlus, LuRectangleVertical, LuSquare } from 'react-icons/lu'
-import { useShallow } from 'zustand/react/shallow'
 
 import Lane from './components/Lane'
+import ModeButtons from './components/ModeButtons'
 import {
   INITIAL_SECTORS,
   LANES,
   NOTE_HEIGHT_REM,
   ROWS_PER_SECTOR,
 } from './constants'
-import { useEditorStore } from './store'
 import { cn } from './utils'
 
 const ChartEditor = () => {
@@ -18,13 +17,6 @@ const ChartEditor = () => {
   const rows = sectors * ROWS_PER_SECTOR
 
   const sectorHeightRem = NOTE_HEIGHT_REM * ROWS_PER_SECTOR
-
-  const { mode, setMode } = useEditorStore(
-    useShallow((state) => ({
-      mode: state.mode,
-      setMode: state.setMode,
-    })),
-  )
 
   const scrollElementRef = useRef<HTMLDivElement>(null)
   const rowVirtualizer = useVirtualizer({
@@ -41,33 +33,7 @@ const ChartEditor = () => {
     <div className="relative h-full">
       {/* control buttons */}
       <div className="absolute right-4 top-4 z-10 flex flex-col gap-2">
-        <button
-          className={cn(
-            'rounded bg-slate-900 p-2',
-            mode === 'addShortNote' && 'bg-blue-700',
-          )}
-          onClick={() => setMode('addShortNote')}
-        >
-          <LuSquare size={24} />
-        </button>
-        <button
-          className={cn(
-            'rounded bg-slate-900 p-2',
-            mode === 'addLongNote' && 'bg-orange-700',
-          )}
-          onClick={() => setMode('addLongNote')}
-        >
-          <LuRectangleVertical size={24} />
-        </button>
-        <button
-          className={cn(
-            'rounded bg-slate-900 p-2',
-            mode === 'delete' && 'bg-red-900',
-          )}
-          onClick={() => setMode('delete')}
-        >
-          <LuEraser size={24} />
-        </button>
+        <ModeButtons />
       </div>
 
       <div className="relative h-full overflow-y-scroll" ref={scrollElementRef}>

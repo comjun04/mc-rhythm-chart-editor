@@ -2,12 +2,17 @@ import { nanoid } from 'nanoid'
 import { create } from 'zustand'
 import { immer } from 'zustand/middleware/immer'
 
+import { ROWS_PER_SECTOR } from './constants'
 import { Note } from './types'
 
 type ChartState = {
   notes: Note[]
   addNote: (noteData: Omit<Note, 'id'>) => void
   removeNote: (id: string) => void
+
+  sectorCount: number
+  addSector: () => void
+  removeUnusedSectors: () => void
 
   tickrate: number
   setTickrate: (tickrate: number) => boolean
@@ -29,6 +34,22 @@ export const useChartStore = create(
         if (idx >= 0) {
           state.notes.splice(idx, 1)
         }
+      }),
+
+    sectorCount: 4,
+    addSector: () =>
+      set((state) => {
+        state.sectorCount++
+      }),
+    removeUnusedSectors: () =>
+      set((state) => {
+        const lastNoteRow = state.notes.reduce(
+          (acc, cur) => Math.max(acc, cur.row + cur.length - 1),
+          0,
+        )
+        const lastSector = Math.floor(lastNoteRow / ROWS_PER_SECTOR)
+
+        state.sectorCount = lastSector + 1
       }),
 
     tickrate: 20,

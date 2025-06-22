@@ -1,20 +1,23 @@
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { useRef, useState } from 'react'
 import { LuEraser, LuPlus, LuRectangleVertical, LuSquare } from 'react-icons/lu'
+import { useShallow } from 'zustand/shallow'
 
 import Lane from './components/Lane'
 import ModeButtons from './components/ModeButtons'
-import {
-  INITIAL_SECTORS,
-  LANES,
-  NOTE_HEIGHT_REM,
-  ROWS_PER_SECTOR,
-} from './constants'
+import { LANES, NOTE_HEIGHT_REM, ROWS_PER_SECTOR } from './constants'
+import { useChartStore } from './store'
 import { cn } from './utils'
 
 const ChartEditor = () => {
-  const [sectors, setSectors] = useState(INITIAL_SECTORS)
-  const rows = sectors * ROWS_PER_SECTOR
+  const { sectorCount, addSector } = useChartStore(
+    useShallow((state) => ({
+      sectorCount: state.sectorCount,
+      addSector: state.addSector,
+    })),
+  )
+
+  const rows = sectorCount * ROWS_PER_SECTOR
 
   const sectorHeightRem = NOTE_HEIGHT_REM * ROWS_PER_SECTOR
 
@@ -40,7 +43,7 @@ const ChartEditor = () => {
         <div className="flex items-center justify-center p-12">
           <button
             className="flex flex-row items-center gap-2 rounded bg-gray-900 px-3 py-2"
-            onClick={() => setSectors((cur) => cur + 1)}
+            onClick={() => addSector()}
           >
             <LuPlus size={20} />
             <span>Add Sector</span>
@@ -50,8 +53,8 @@ const ChartEditor = () => {
         <div className="absolute z-[1] flex w-full flex-row bg-transparent px-4">
           {/* left placeholder */}
           <div className="flex flex-col pr-2">
-            {[...Array(sectors)].map((_, idx) => {
-              const sectorIndex = sectors - idx - 1
+            {[...Array(sectorCount)].map((_, idx) => {
+              const sectorIndex = sectorCount - idx - 1
               return (
                 <div
                   key={sectorIndex}
@@ -83,8 +86,8 @@ const ChartEditor = () => {
 
         {/* sector background */}
         <div className="absolute z-0 flex w-full flex-col pb-24">
-          {[...Array(sectors)].map((_, idx) => {
-            const sectorIndex = sectors - idx - 1
+          {[...Array(sectorCount)].map((_, idx) => {
+            const sectorIndex = sectorCount - idx - 1
 
             return (
               <div

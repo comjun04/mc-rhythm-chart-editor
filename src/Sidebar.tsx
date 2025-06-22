@@ -10,10 +10,11 @@ type SidebarProps = {
 }
 
 const Sidebar: FC<SidebarProps> = ({ open, onClose = () => {} }) => {
-  const { tickrate, setTickrate } = useChartStore(
+  const { tickrate, setTickrate, removeUnusedSectors } = useChartStore(
     useShallow((state) => ({
       tickrate: state.tickrate,
       setTickrate: state.setTickrate,
+      removeUnusedSectors: state.removeUnusedSectors,
     })),
   )
 
@@ -52,7 +53,6 @@ const Sidebar: FC<SidebarProps> = ({ open, onClose = () => {} }) => {
               className="rounded bg-green-700 px-3 py-1"
               onClick={() => {
                 const result = setTickrate(tempTickrate)
-                console.log(tempTickrate, result)
                 if (!result) {
                   window.alert('Tickrate set failed')
                 }
@@ -79,7 +79,10 @@ const Sidebar: FC<SidebarProps> = ({ open, onClose = () => {} }) => {
         <div className="mt-3 flex flex-col gap-1">
           <h5>Misc</h5>
           <div className="flex flex-row gap-2">
-            <button className="rounded bg-gray-900 px-3 py-1">
+            <button
+              className="rounded bg-gray-900 px-3 py-1"
+              onClick={() => removeUnusedSectors()}
+            >
               Remove unused sectors
             </button>
           </div>

@@ -30,7 +30,7 @@ const ChartEditor = () => {
   const virtualItems = rowVirtualizer.getVirtualItems()
 
   return (
-    <div className="relative h-full">
+    <div className="relative h-full grow">
       {/* control buttons */}
       <div className="absolute right-4 top-4 z-10 flex flex-col gap-2">
         <ModeButtons />

@@ -8,6 +8,9 @@ type ChartState = {
   notes: Note[]
   addNote: (noteData: Omit<Note, 'id'>) => void
   removeNote: (id: string) => void
+
+  tickrate: number
+  setTickrate: (tickrate: number) => boolean
 }
 export const useChartStore = create(
   immer<ChartState>((set) => ({
@@ -27,6 +30,19 @@ export const useChartStore = create(
           state.notes.splice(idx, 1)
         }
       }),
+
+    tickrate: 20,
+    setTickrate: (tickrate) => {
+      const tickrateInt = parseInt(tickrate)
+      if (isNaN(tickrate) || tickrate < 1) {
+        return false
+      }
+
+      set((state) => {
+        state.tickrate = tickrateInt
+      })
+      return true
+    },
   })),
 )
 

@@ -22,7 +22,25 @@ export const useChartStore = create(
     notes: [],
     addNote: (noteData) =>
       set((state) => {
-        // TODO: 다른 노트랑 겹치는지 체크
+        // 다른 노트랑 겹치는지 체크
+        const newNoteStartRow = noteData.row
+        const newNoteEndRow = noteData.row + noteData.length - 1
+        const isOverlapping = state.notes
+          .filter((note) => note.lane === noteData.lane)
+          .some((note) => {
+            const noteStartRow = note.row
+            const noteEndRow = note.row + note.length - 1
+            return !(
+              newNoteStartRow >= noteEndRow || newNoteEndRow <= noteStartRow
+            )
+          })
+        if (isOverlapping) {
+          console.warn(
+            'useChartStore.addNote: Attempted to add note which overlaps other notes. Ignoring.',
+          )
+          return
+        }
+
         state.notes.push({
           id: nanoid(16),
           ...noteData,

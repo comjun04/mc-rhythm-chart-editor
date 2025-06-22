@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useVirtualizer } from '@tanstack/react-virtual'
+import { useRef, useState } from 'react'
 import { LuEraser, LuPlus, LuRectangleVertical, LuSquare } from 'react-icons/lu'
 import { useShallow } from 'zustand/react/shallow'
 
@@ -25,8 +26,19 @@ const ChartEditor = () => {
     })),
   )
 
+  const scrollElementRef = useRef<HTMLDivElement>(null)
+  const rowVirtualizer = useVirtualizer({
+    count: rows,
+    getScrollElement: () => scrollElementRef.current,
+    estimateSize: () => NOTE_HEIGHT_REM * 16,
+    scrollMargin: 140,
+    overscan: 50,
+  })
+
+  const virtualItems = rowVirtualizer.getVirtualItems()
+
   return (
-    <div className="relative h-full overflow-y-scroll">
+    <div className="relative h-full">
       {/* control buttons */}
       <div className="absolute right-4 top-4 z-10 flex flex-col gap-2">
         <button
@@ -58,7 +70,7 @@ const ChartEditor = () => {
         </button>
       </div>
 
-      <div className="relative h-full overflow-y-scroll">
+      <div className="relative h-full overflow-y-scroll" ref={scrollElementRef}>
         <div className="flex items-center justify-center p-12">
           <button
             className="flex flex-row items-center gap-2 rounded bg-gray-900 px-3 py-2"
@@ -69,7 +81,7 @@ const ChartEditor = () => {
           </button>
         </div>
         {/* lanes */}
-        <div className="absolute z-[1] flex flex-row bg-transparent px-4">
+        <div className="absolute z-[1] flex w-full flex-row bg-transparent px-4">
           {/* left placeholder */}
           <div className="flex flex-col pr-2">
             {[...Array(sectors)].map((_, idx) => {
@@ -90,9 +102,17 @@ const ChartEditor = () => {
             })}
           </div>
           {/* real lane */}
-          {[...Array(LANES)].map((_, laneIndex) => (
-            <Lane key={laneIndex} laneIndex={laneIndex} rows={rows} />
-          ))}
+          <div className="flex flex-row overflow-x-auto">
+            {[...Array(LANES)].map((_, laneIndex) => (
+              <Lane
+                key={laneIndex}
+                laneIndex={laneIndex}
+                rows={rows}
+                virtualItemStartIndex={virtualItems[0]?.index ?? 0}
+                virtualItemLength={virtualItems.length}
+              />
+            ))}
+          </div>
         </div>
 
         {/* sector background */}

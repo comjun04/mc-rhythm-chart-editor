@@ -7,9 +7,17 @@ import { cn } from '../utils'
 type LaneProps = {
   laneIndex: number
   rows: number
+
+  virtualItemStartIndex: number
+  virtualItemLength: number
 }
 
-const Lane = ({ laneIndex, rows }: LaneProps) => {
+const Lane = ({
+  laneIndex,
+  rows,
+  virtualItemStartIndex,
+  virtualItemLength,
+}: LaneProps) => {
   const { editorMode, tempLongNoteStartPos, setTempLongNoteStartPos } =
     useEditorStore(
       useShallow((state) => {
@@ -33,21 +41,22 @@ const Lane = ({ laneIndex, rows }: LaneProps) => {
   )
 
   return (
-    <div className="relative flex flex-col">
-      {/* sector background */}
-
+    <div className="relative flex w-[60px] flex-none flex-col">
       {/* grid */}
-      {[...Array(rows)].map((_, idx) => {
-        const row = rows - idx - 1
+      {[...Array(virtualItemLength)].map((_, idx) => {
+        const row = rows - virtualItemStartIndex - idx - 1
         const isLongNoteStartPos = tempLongNoteStartPos?.row === row
 
         return (
           <div
             key={row}
             className={cn(
-              'relative h-6 w-[60px] border border-gray-500',
+              'absolute left-0 top-0 h-6 w-full border border-gray-500',
               isLongNoteStartPos && 'bg-orange-500/30',
             )}
+            style={{
+              transform: `translateY(${(virtualItemStartIndex + idx) * NOTE_HEIGHT_REM}rem)`,
+            }}
             onClick={() => {
               if (editorMode === 'addShortNote') {
                 addNote({

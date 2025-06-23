@@ -2,6 +2,7 @@ import { FC, useState } from 'react'
 import { useShallow } from 'zustand/shallow'
 
 import { useChartStore } from './store'
+import { Note } from './types'
 import { cn } from './utils'
 
 type SidebarProps = {
@@ -47,7 +48,7 @@ const Sidebar: FC<SidebarProps> = ({ open, onClose = () => {} }) => {
               placeholder="ticks per second"
               className="w-20 bg-gray-900 p-1 text-end"
               value={tempTickrate}
-              onChange={(evt) => setTempTickrate(evt.target.value)}
+              onChange={(evt) => setTempTickrate(parseInt(evt.target.value))}
             />
             <button
               className="rounded bg-green-700 px-3 py-1"
@@ -104,7 +105,7 @@ const Sidebar: FC<SidebarProps> = ({ open, onClose = () => {} }) => {
                 // total chart length
                 const length = Math.max(
                   ...transformedDataArr.map(
-                    (lane) => lane[lane.length - 1] ?? 0,
+                    (lane) => (lane[lane.length - 1] as number) ?? 0,
                   ),
                 )
                 // fill empty lines with -99999

@@ -72,7 +72,7 @@ export const useChartStore = create(
 
     tickrate: 20,
     setTickrate: (tickrate) => {
-      const tickrateInt = parseInt(tickrate)
+      const tickrateInt = parseInt(tickrate.toString()) // parseInt() only accepts string...
       if (isNaN(tickrate) || tickrate < 1) {
         return false
       }

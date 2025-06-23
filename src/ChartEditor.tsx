@@ -1,6 +1,6 @@
 import { useVirtualizer } from '@tanstack/react-virtual'
-import { useRef, useState } from 'react'
-import { LuEraser, LuPlus, LuRectangleVertical, LuSquare } from 'react-icons/lu'
+import { useRef } from 'react'
+import { LuPlus } from 'react-icons/lu'
 import { useShallow } from 'zustand/shallow'
 
 import Lane from './components/Lane'

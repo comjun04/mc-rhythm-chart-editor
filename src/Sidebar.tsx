@@ -73,7 +73,69 @@ const Sidebar: FC<SidebarProps> = ({ open, onClose = () => {} }) => {
           <div className="flex flex-row gap-2">
             <button className="rounded bg-gray-900 px-3 py-1">Save</button>
             <button className="rounded bg-gray-900 px-3 py-1">Load</button>
-            <button className="rounded bg-blue-800 px-3 py-1">Export</button>
+            <button
+              className="rounded bg-blue-800 px-3 py-1"
+              onClick={() => {
+                const { notes, tickrate } = useChartStore.getState()
+
+                const sortedNotesByLane: Note[][] = [[], [], [], [], []]
+                const transformedDataArr: (number | 'l')[][] = [
+                  [],
+                  [],
+                  [],
+                  [],
+                  [],
+                ]
+
+                notes.forEach((note) => sortedNotesByLane[note.lane].push(note))
+                sortedNotesByLane.forEach((noteArr, idx) => {
+                  noteArr.sort((a, b) => a.row - b.row)
+                  noteArr.forEach((note) => {
+                    const start = note.row * tickrate
+                    const end = (note.row + note.length - 1) * tickrate
+                    if (note.type === 'long') {
+                      transformedDataArr[idx].push('l', start, end)
+                    } else {
+                      transformedDataArr[idx].push(start)
+                    }
+                  })
+                })
+
+                // total chart length
+                const length = Math.max(
+                  ...transformedDataArr.map(
+                    (lane) => lane[lane.length - 1] ?? 0,
+                  ),
+                )
+                // fill empty lines with -99999
+                transformedDataArr.forEach((lane) => {
+                  if (lane.length < 1) {
+                    lane.push(-99999)
+                  }
+                })
+
+                const finaldata = {
+                  a: transformedDataArr[0],
+                  b: transformedDataArr[1],
+                  c: transformedDataArr[2],
+                  d: transformedDataArr[3],
+                  e: transformedDataArr[4],
+                  keys: 5,
+                  length,
+                  tick: tickrate,
+                }
+
+                try {
+                  navigator.clipboard.writeText(JSON.stringify(finaldata))
+                  window.alert('Exported to clipboard')
+                } catch (e) {
+                  console.error(e)
+                  window.alert('Failed to export: cannot copy to clipboard')
+                }
+              }}
+            >
+              Export
+            </button>
           </div>
         </div>
         <div className="mt-3 flex flex-col gap-1">

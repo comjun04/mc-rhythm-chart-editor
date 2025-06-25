@@ -1,5 +1,5 @@
 import { useVirtualizer } from '@tanstack/react-virtual'
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { LuPlus } from 'react-icons/lu'
 import { useShallow } from 'zustand/shallow'
 
@@ -31,6 +31,13 @@ const ChartEditor = () => {
   })
 
   const virtualItems = rowVirtualizer.getVirtualItems()
+
+  useEffect(() => {
+    // scroll to the bottom on initial load
+    scrollElementRef.current?.scroll({
+      top: scrollElementRef.current.scrollHeight,
+    })
+  }, [])
 
   return (
     <div className="relative h-full grow">

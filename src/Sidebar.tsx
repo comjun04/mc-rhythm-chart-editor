@@ -1,7 +1,7 @@
 import { FC, useState } from 'react'
 import { useShallow } from 'zustand/shallow'
 
-import { useChartStore } from './store'
+import { useChartStore, useEditorStore } from './store'
 import { Note } from './types'
 import { cn } from './utils'
 
@@ -18,6 +18,14 @@ const Sidebar: FC<SidebarProps> = ({ open, onClose = () => {} }) => {
       removeUnusedSectors: state.removeUnusedSectors,
     })),
   )
+  const { playbackPlaying, playbackStarted, setPlaybackStatus } =
+    useEditorStore(
+      useShallow((state) => ({
+        playbackPlaying: state.playbackPlaying,
+        playbackStarted: state.playbackStarted,
+        setPlaybackStatus: state.setPlaybackStatus,
+      })),
+    )
 
   const [tempTickrate, setTempTickrate] = useState(tickrate)
 
@@ -45,7 +53,7 @@ const Sidebar: FC<SidebarProps> = ({ open, onClose = () => {} }) => {
           <div className="flex flex-row gap-2">
             <input
               type="number"
-              placeholder="ticks per second"
+              placeholder="tick/s"
               className="w-20 bg-gray-900 p-1 text-end"
               value={tempTickrate}
               onChange={(evt) => setTempTickrate(parseInt(evt.target.value))}
@@ -139,6 +147,34 @@ const Sidebar: FC<SidebarProps> = ({ open, onClose = () => {} }) => {
             </button>
           </div>
         </div>
+        <div className="mt-3 flex flex-col gap-1">
+          <h5>Preview</h5>
+          <div className="flex flex-row gap-2">
+            {playbackPlaying ? (
+              <button
+                className="rounded bg-gray-900 px-3 py-1"
+                onClick={() => setPlaybackStatus('pause')}
+              >
+                Pause
+              </button>
+            ) : (
+              <button
+                className="rounded bg-gray-900 px-3 py-1"
+                onClick={() => setPlaybackStatus('play')}
+              >
+                Play
+              </button>
+            )}
+
+            <button
+              className="rounded bg-red-900 px-3 py-1"
+              onClick={() => setPlaybackStatus('stop')}
+            >
+              Stop
+            </button>
+          </div>
+        </div>
+
         <div className="mt-3 flex flex-col gap-1">
           <h5>Misc</h5>
           <div className="flex flex-row gap-2">

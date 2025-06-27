@@ -95,6 +95,12 @@ type EditorState = {
     row: number
   } | null
   setLongNoteStartPos: (startPos: { lane: number; row: number } | null) => void
+
+  playbackPlaying: boolean
+  playbackStarted: boolean
+  playbackTime: number
+  setPlaybackStatus: (status: 'play' | 'pause' | 'stop') => void
+  addPlaybackTime: (time: number) => void
 }
 export const useEditorStore = create(
   immer<EditorState>((set) => ({
@@ -112,6 +118,29 @@ export const useEditorStore = create(
     setLongNoteStartPos: (startPos) =>
       set((state) => {
         state.longNoteStartPos = startPos
+      }),
+
+    playbackPlaying: false,
+    playbackStarted: false,
+    playbackTime: 0,
+    setPlaybackStatus: (status) =>
+      set((state) => {
+        if (status === 'play') {
+          if (!state.playbackStarted) {
+            state.playbackStarted = true
+            state.playbackTime = 0
+          }
+          state.playbackPlaying = true
+        } else if (status === 'pause') {
+          state.playbackPlaying = false
+        } else {
+          state.playbackPlaying = false
+          state.playbackStarted = false
+        }
+      }),
+    addPlaybackTime: (time) =>
+      set((state) => {
+        state.playbackTime += time
       }),
   })),
 )

@@ -5,8 +5,9 @@ import { useShallow } from 'zustand/shallow'
 
 import Lane from './components/Lane'
 import ModeButtons from './components/ModeButtons'
+import PlaybackLine from './components/PlaybackLine'
 import { LANES, NOTE_HEIGHT_REM, ROWS_PER_SECTOR } from './constants'
-import { useChartStore } from './store'
+import { useChartStore, useEditorStore } from './store'
 import { cn } from './utils'
 
 const ChartEditor = () => {
@@ -16,6 +17,7 @@ const ChartEditor = () => {
       addSector: state.addSector,
     })),
   )
+  const playbackStarted = useEditorStore((state) => state.playbackStarted)
 
   const rows = sectorCount * ROWS_PER_SECTOR
 
@@ -92,7 +94,12 @@ const ChartEditor = () => {
         </div>
 
         {/* sector background */}
-        <div className="absolute z-0 flex w-full flex-col pb-24">
+        <div
+          className={cn(
+            'absolute z-0 flex w-full flex-col',
+            !playbackStarted && 'pb-24',
+          )}
+        >
           {[...Array(sectorCount)].map((_, idx) => {
             const sectorIndex = sectorCount - idx - 1
 
@@ -105,11 +112,25 @@ const ChartEditor = () => {
                 )}
                 style={{
                   height: `${sectorHeightRem}rem`,
-                  bottom: `${sectorIndex * sectorHeightRem}rem`,
+                  bottom: `${(playbackStarted ? sectorIndex + 1 : sectorIndex) * sectorHeightRem}rem`,
                 }}
               />
             )
           })}
+
+          {playbackStarted && (
+            <>
+              <div
+                style={{
+                  height: `${sectorHeightRem}rem`,
+                  bottom: 0,
+                }}
+              />
+
+              {/* Preview playback line */}
+              <PlaybackLine />
+            </>
+          )}
         </div>
       </div>
     </div>

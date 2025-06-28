@@ -9,14 +9,13 @@ import ModeButtons from './components/ModeButtons'
 import PlaybackLine from './components/PlaybackLine'
 import { LANES, NOTE_HEIGHT_REM, ROWS_PER_SECTOR } from './constants'
 import { useChartStore, useEditorStore } from './store'
-import { cn } from './utils'
+import { cn, getHeightRemPerSecond } from './utils'
 
 const ChartEditor = () => {
-  const { sectorCount, addSector, tickrate } = useChartStore(
+  const { sectorCount, addSector } = useChartStore(
     useShallow((state) => ({
       sectorCount: state.sectorCount,
       addSector: state.addSector,
-      tickrate: state.tickrate,
     })),
   )
   const { playbackStarted, playbackPlaying } = useEditorStore(
@@ -50,14 +49,14 @@ const ChartEditor = () => {
 
   useEffect(() => {
     const loop = () => {
-      const { tickrate } = useChartStore.getState()
+      const { bpm } = useChartStore.getState()
       const { playbackPlaying, playbackTime } = useEditorStore.getState()
 
       scrollElementRef.current?.scroll({
         top:
           scrollElementRef.current.scrollHeight -
           (window.innerHeight / 10) * 8 -
-          (tickrate * 16 * NOTE_HEIGHT_REM * playbackTime) / 1000,
+          (getHeightRemPerSecond(bpm) * 16 * playbackTime) / 1000,
       })
 
       if (playbackPlaying) {
@@ -161,7 +160,7 @@ const ChartEditor = () => {
             <>
               <div
                 style={{
-                  height: `${(sectorHeightRem / ROWS_PER_SECTOR) * tickrate * 2}rem`,
+                  height: `${sectorHeightRem * 2}rem`,
                   bottom: 0,
                 }}
               />

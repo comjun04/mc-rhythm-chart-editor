@@ -3,7 +3,7 @@ import { useShallow } from 'zustand/shallow'
 
 import { useChartStore, useEditorStore } from './store'
 import { Note } from './types'
-import { cn } from './utils'
+import { cn, getMultiplierToInteger } from './utils'
 
 type SidebarProps = {
   open: boolean
@@ -11,10 +11,10 @@ type SidebarProps = {
 }
 
 const Sidebar: FC<SidebarProps> = ({ open, onClose = () => {} }) => {
-  const { tickrate, setTickrate, removeUnusedSectors } = useChartStore(
+  const { bpm, setBpm, removeUnusedSectors } = useChartStore(
     useShallow((state) => ({
-      tickrate: state.tickrate,
-      setTickrate: state.setTickrate,
+      bpm: state.bpm,
+      setBpm: state.setBpm,
       removeUnusedSectors: state.removeUnusedSectors,
     })),
   )
@@ -25,7 +25,7 @@ const Sidebar: FC<SidebarProps> = ({ open, onClose = () => {} }) => {
     })),
   )
 
-  const [tempTickrate, setTempTickrate] = useState(tickrate)
+  const [tempBpm, setTempBpm] = useState(bpm)
 
   return (
     <>
@@ -47,21 +47,23 @@ const Sidebar: FC<SidebarProps> = ({ open, onClose = () => {} }) => {
         <h3 className="text-xl">Sidebar</h3>
 
         <div className="mt-6 flex flex-col gap-1">
-          <h5>Tickrate</h5>
+          <h5>Song BPM</h5>
           <div className="flex flex-row gap-2">
             <input
               type="number"
-              placeholder="tick/s"
+              min={0}
+              step={0.01}
+              placeholder="BPM"
               className="w-20 bg-gray-900 p-1 text-end"
-              value={tempTickrate}
-              onChange={(evt) => setTempTickrate(parseInt(evt.target.value))}
+              value={tempBpm}
+              onChange={(evt) => setTempBpm(Number(evt.target.value))}
             />
             <button
               className="rounded bg-green-700 px-3 py-1"
               onClick={() => {
-                const result = setTickrate(tempTickrate)
+                const result = setBpm(tempBpm)
                 if (!result) {
-                  window.alert('Tickrate set failed')
+                  window.alert('[!] Failed to set BPM')
                 }
               }}
             >
@@ -69,7 +71,7 @@ const Sidebar: FC<SidebarProps> = ({ open, onClose = () => {} }) => {
             </button>
             <button
               className="rounded bg-red-700 px-3 py-1"
-              onClick={() => setTempTickrate(tickrate)}
+              onClick={() => setTempBpm(bpm)}
             >
               Reset
             </button>
@@ -83,7 +85,13 @@ const Sidebar: FC<SidebarProps> = ({ open, onClose = () => {} }) => {
             <button
               className="rounded bg-blue-800 px-3 py-1"
               onClick={() => {
-                const { notes, tickrate } = useChartStore.getState()
+                const { notes, bpm } = useChartStore.getState()
+                const subBeatsPerSecond = (bpm / 60) * 4
+                const tickrateMultiplier =
+                  getMultiplierToInteger(subBeatsPerSecond)
+                const tickrate = Math.floor(
+                  subBeatsPerSecond * tickrateMultiplier,
+                )
 
                 const sortedNotesByLane: Note[][] = [[], [], [], [], []]
                 const transformedDataArr: (number | 'l')[][] = [
@@ -98,8 +106,9 @@ const Sidebar: FC<SidebarProps> = ({ open, onClose = () => {} }) => {
                 sortedNotesByLane.forEach((noteArr, idx) => {
                   noteArr.sort((a, b) => a.row - b.row)
                   noteArr.forEach((note) => {
-                    const start = note.row * tickrate
-                    const end = (note.row + note.length - 1) * tickrate
+                    const start = note.row * tickrateMultiplier
+                    const end =
+                      (note.row + note.length - 1) * tickrateMultiplier
                     if (note.type === 'long') {
                       transformedDataArr[idx].push('l', start, end)
                     } else {
@@ -137,7 +146,7 @@ const Sidebar: FC<SidebarProps> = ({ open, onClose = () => {} }) => {
                   window.alert('Exported to clipboard')
                 } catch (e) {
                   console.error(e)
-                  window.alert('Failed to export: cannot copy to clipboard')
+                  window.alert('[!] Failed to export: cannot copy to clipboard')
                 }
               }}
             >

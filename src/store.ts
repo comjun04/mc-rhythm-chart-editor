@@ -14,8 +14,8 @@ type ChartState = {
   addSector: () => void
   removeUnusedSectors: () => void
 
-  tickrate: number
-  setTickrate: (tickrate: number) => boolean
+  bpm: number
+  setBpm: (bpm: number) => boolean
 }
 export const useChartStore = create(
   immer<ChartState>((set) => ({
@@ -70,15 +70,14 @@ export const useChartStore = create(
         state.sectorCount = lastSector + 1
       }),
 
-    tickrate: 20,
-    setTickrate: (tickrate) => {
-      const tickrateInt = parseInt(tickrate.toString()) // parseInt() only accepts string...
-      if (isNaN(tickrate) || tickrate < 1) {
+    bpm: 120,
+    setBpm: (bpm) => {
+      if (isNaN(bpm) || bpm <= 0) {
         return false
       }
 
       set((state) => {
-        state.tickrate = tickrateInt
+        state.bpm = bpm
       })
       return true
     },

@@ -12,10 +12,11 @@ import { useChartStore, useEditorStore } from './store'
 import { cn } from './utils'
 
 const ChartEditor = () => {
-  const { sectorCount, addSector } = useChartStore(
+  const { sectorCount, addSector, tickrate } = useChartStore(
     useShallow((state) => ({
       sectorCount: state.sectorCount,
       addSector: state.addSector,
+      tickrate: state.tickrate,
     })),
   )
   const { playbackStarted, playbackPlaying } = useEditorStore(
@@ -154,7 +155,7 @@ const ChartEditor = () => {
             <>
               <div
                 style={{
-                  height: `${sectorHeightRem}rem`,
+                  height: `${(sectorHeightRem / ROWS_PER_SECTOR) * tickrate * 2}rem`,
                   bottom: 0,
                 }}
               />

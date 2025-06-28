@@ -18,14 +18,12 @@ const Sidebar: FC<SidebarProps> = ({ open, onClose = () => {} }) => {
       removeUnusedSectors: state.removeUnusedSectors,
     })),
   )
-  const { playbackPlaying, playbackStarted, setPlaybackStatus } =
-    useEditorStore(
-      useShallow((state) => ({
-        playbackPlaying: state.playbackPlaying,
-        playbackStarted: state.playbackStarted,
-        setPlaybackStatus: state.setPlaybackStatus,
-      })),
-    )
+  const { playbackPlaying, setPlaybackStatus } = useEditorStore(
+    useShallow((state) => ({
+      playbackPlaying: state.playbackPlaying,
+      setPlaybackStatus: state.setPlaybackStatus,
+    })),
+  )
 
   const [tempTickrate, setTempTickrate] = useState(tickrate)
 

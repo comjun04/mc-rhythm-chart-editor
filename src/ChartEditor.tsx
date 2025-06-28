@@ -1,3 +1,4 @@
+import { raf } from '@react-spring/rafz'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { useEffect, useRef } from 'react'
 import { LuPlus } from 'react-icons/lu'
@@ -17,7 +18,12 @@ const ChartEditor = () => {
       addSector: state.addSector,
     })),
   )
-  const playbackStarted = useEditorStore((state) => state.playbackStarted)
+  const { playbackStarted, playbackPlaying } = useEditorStore(
+    useShallow((state) => ({
+      playbackStarted: state.playbackStarted,
+      playbackPlaying: state.playbackPlaying,
+    })),
+  )
 
   const rows = sectorCount * ROWS_PER_SECTOR
 
@@ -40,6 +46,32 @@ const ChartEditor = () => {
       top: scrollElementRef.current.scrollHeight,
     })
   }, [])
+
+  useEffect(() => {
+    const loop = () => {
+      const { tickrate } = useChartStore.getState()
+      const { playbackPlaying, playbackTime } = useEditorStore.getState()
+
+      scrollElementRef.current?.scroll({
+        top:
+          scrollElementRef.current.scrollHeight -
+          (window.innerHeight / 10) * 8 -
+          (tickrate * 16 * NOTE_HEIGHT_REM * playbackTime) / 1000,
+      })
+
+      if (playbackPlaying) {
+        return true
+      }
+    }
+
+    if (playbackPlaying) {
+      raf(loop)
+    }
+
+    return () => {
+      raf.cancel(loop)
+    }
+  }, [playbackPlaying])
 
   return (
     <div className="relative h-full grow">

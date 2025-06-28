@@ -81,7 +81,13 @@ const ChartEditor = () => {
         <ModeButtons />
       </div>
 
-      <div className="relative h-full overflow-y-scroll" ref={scrollElementRef}>
+      <div
+        className={cn(
+          'relative h-full',
+          playbackPlaying ? 'overflow-y-hidden' : 'overflow-y-scroll',
+        )}
+        ref={scrollElementRef}
+      >
         <div className="flex items-center justify-center p-12">
           <button
             className="flex flex-row items-center gap-2 rounded bg-gray-900 px-3 py-2"

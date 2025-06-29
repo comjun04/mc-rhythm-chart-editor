@@ -18,13 +18,17 @@ const Sidebar: FC<SidebarProps> = ({ open, onClose = () => {} }) => {
       removeUnusedSectors: state.removeUnusedSectors,
     })),
   )
-  const { playbackPlaying, setPlaybackStatus } = useEditorStore(
-    useShallow((state) => ({
-      playbackPlaying: state.playbackPlaying,
-      setPlaybackStatus: state.setPlaybackStatus,
-    })),
-  )
+  const { playbackStarted, playbackPlaying, setPlaybackStatus } =
+    useEditorStore(
+      useShallow((state) => ({
+        playbackStarted: state.playbackStarted,
+        playbackPlaying: state.playbackPlaying,
+        setPlaybackStatus: state.setPlaybackStatus,
+      })),
+    )
   const songMetadata = useSongStore((state) => state.songMetadata)
+
+  const controlsDisabled = playbackStarted
 
   const [tempBpm, setTempBpm] = useState(bpm)
 
@@ -54,19 +58,26 @@ const Sidebar: FC<SidebarProps> = ({ open, onClose = () => {} }) => {
               <>
                 <span>{songMetadata.filename}</span>
                 <button
-                  className="rounded bg-red-700 px-3 py-1"
+                  className={cn(
+                    'rounded bg-red-700 px-3 py-1',
+                    controlsDisabled && 'opacity-70',
+                  )}
                   onClick={() => {
                     if (window.confirm('Are you sure to remove the song?')) {
                       useSongStore.getState().setSong(null)
                     }
                   }}
+                  disabled={controlsDisabled}
                 >
                   Remove
                 </button>
               </>
             ) : (
               <button
-                className="rounded bg-gray-900 px-3 py-1"
+                className={cn(
+                  'rounded bg-gray-900 px-3 py-1',
+                  controlsDisabled && 'opacity-70',
+                )}
                 onClick={() => {
                   const inputElement = document.createElement('input')
                   inputElement.type = 'file'
@@ -82,6 +93,7 @@ const Sidebar: FC<SidebarProps> = ({ open, onClose = () => {} }) => {
 
                   inputElement.click()
                 }}
+                disabled={controlsDisabled}
               >
                 Add Song
               </button>
@@ -97,24 +109,36 @@ const Sidebar: FC<SidebarProps> = ({ open, onClose = () => {} }) => {
               min={0}
               step={0.01}
               placeholder="BPM"
-              className="w-20 bg-gray-900 p-1 text-end"
+              className={cn(
+                'w-20 bg-gray-900 p-1 text-end',
+                controlsDisabled && 'opacity-70',
+              )}
               value={tempBpm}
               onChange={(evt) => setTempBpm(Number(evt.target.value))}
+              disabled={controlsDisabled}
             />
             <button
-              className="rounded bg-green-700 px-3 py-1"
+              className={cn(
+                'rounded bg-green-700 px-3 py-1',
+                controlsDisabled && 'opacity-70',
+              )}
               onClick={() => {
                 const result = setBpm(tempBpm)
                 if (!result) {
                   window.alert('[!] Failed to set BPM')
                 }
               }}
+              disabled={controlsDisabled}
             >
               Apply
             </button>
             <button
-              className="rounded bg-red-700 px-3 py-1"
+              className={cn(
+                'rounded bg-red-700 px-3 py-1',
+                controlsDisabled && 'opacity-70',
+              )}
               onClick={() => setTempBpm(bpm)}
+              disabled={controlsDisabled}
             >
               Reset
             </button>
@@ -229,8 +253,12 @@ const Sidebar: FC<SidebarProps> = ({ open, onClose = () => {} }) => {
           <h5>Misc</h5>
           <div className="flex flex-row gap-2">
             <button
-              className="rounded bg-gray-900 px-3 py-1"
+              className={cn(
+                'rounded bg-gray-900 px-3 py-1',
+                controlsDisabled && 'opacity-70',
+              )}
               onClick={() => removeUnusedSectors()}
+              disabled={controlsDisabled}
             >
               Remove unused sectors
             </button>

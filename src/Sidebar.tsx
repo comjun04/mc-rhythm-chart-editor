@@ -1,7 +1,7 @@
 import { FC, useState } from 'react'
 import { useShallow } from 'zustand/shallow'
 
-import { saveFile } from './services/fileService'
+import { loadFile, saveFile } from './services/fileService'
 import { useChartStore, useEditorStore, useSongStore } from './store'
 import { Note } from './types'
 import { cn, getMultiplierToInteger } from './utils'
@@ -89,7 +89,10 @@ const Sidebar: FC<SidebarProps> = ({ open, onClose = () => {} }) => {
                       return
                     }
 
-                    useSongStore.getState().setSong(file).catch(console.error)
+                    useSongStore
+                      .getState()
+                      .setSong({ songBlob: file, filename: file.name })
+                      .catch(console.error)
                   }
 
                   inputElement.click()
@@ -154,7 +157,26 @@ const Sidebar: FC<SidebarProps> = ({ open, onClose = () => {} }) => {
             >
               Save
             </button>
-            <button className="rounded bg-gray-900 px-3 py-1">Load</button>
+            <button
+              className="rounded bg-gray-900 px-3 py-1"
+              onClick={() => {
+                const inputElement = document.createElement('input')
+                inputElement.type = 'file'
+                inputElement.accept = 'application/zip'
+                inputElement.onchange = (evt) => {
+                  const file = (evt.target as HTMLInputElement).files?.[0]
+                  if (file == null) {
+                    return
+                  }
+
+                  loadFile(file).catch(console.error)
+                }
+
+                inputElement.click()
+              }}
+            >
+              Load
+            </button>
             <button
               className="rounded bg-blue-800 px-3 py-1"
               onClick={() => {

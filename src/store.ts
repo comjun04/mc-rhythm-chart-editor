@@ -4,7 +4,7 @@ import { create } from 'zustand'
 import { immer } from 'zustand/middleware/immer'
 
 import { ROWS_PER_SECTOR } from './constants'
-import { Note } from './types'
+import { Note, SongMetadata } from './types'
 
 type ChartState = {
   notes: Note[]
@@ -17,6 +17,8 @@ type ChartState = {
 
   bpm: number
   setBpm: (bpm: number) => boolean
+
+  loadProject: (projectData: { notes: Omit<Note, 'id'>[]; bpm: number }) => void
 }
 export const useChartStore = create(
   immer<ChartState>((set) => ({
@@ -82,6 +84,21 @@ export const useChartStore = create(
       })
       return true
     },
+
+    loadProject: (projectData) =>
+      set((state) => {
+        state.notes = projectData.notes.map((note) => ({
+          id: nanoid(16),
+          ...note,
+        }))
+        state.bpm = projectData.bpm
+
+        const lastNoteRow = state.notes.reduce(
+          (acc, cur) => Math.max(acc, cur.row + cur.length - 1),
+          0,
+        )
+        state.sectorCount = Math.floor(lastNoteRow / ROWS_PER_SECTOR) + 1
+      }),
   })),
 )
 
@@ -153,21 +170,19 @@ export const useEditorStore = create(
 
 // song store
 
-let song: File | null = null
+let songBlob: Blob | null = null
 let songHowl: Howl | null = null
 
 type SongState = {
-  songMetadata: {
-    filename: string
-  } | null
-  setSong: (songFile: File | null) => Promise<void>
-  getSongFile: () => File | null
+  songMetadata: SongMetadata | null
+  setSong: (song: { songBlob: Blob; filename: string } | null) => Promise<void>
+  getSongBlob: () => Blob | null
 }
 export const useSongStore = create(
   immer<SongState>((set) => ({
     songMetadata: null,
-    setSong: async (songFile) => {
-      if (songFile == null) {
+    setSong: async (song) => {
+      if (song == null) {
         songHowl?.unload()
         songHowl = null
         song = null
@@ -181,21 +196,21 @@ export const useSongStore = create(
         fileReader.onload = (evt) => {
           resolve(evt.target!.result as string)
         }
-        fileReader.readAsDataURL(songFile)
+        fileReader.readAsDataURL(song.songBlob)
       })
 
       const howl = new Howl({ src: base64DataUrl, format: ['mp3'] })
 
       songHowl?.unload()
       songHowl = howl
-      song = songFile
+      songBlob = song.songBlob
 
       set((state) => {
         state.songMetadata = {
-          filename: songFile.name,
+          filename: song.filename,
         }
       })
     },
-    getSongFile: () => song,
+    getSongBlob: () => songBlob,
   })),
 )

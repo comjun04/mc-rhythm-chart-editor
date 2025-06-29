@@ -58,6 +58,10 @@ const Lane = ({
               transform: `translateY(${(virtualItemStartIndex + idx) * NOTE_HEIGHT_REM}rem)`,
             }}
             onClick={() => {
+              if (useEditorStore.getState().playbackPlaying) {
+                return
+              }
+
               if (editorMode === 'addShortNote') {
                 addNote({
                   lane: laneIndex,
@@ -106,6 +110,10 @@ const Lane = ({
                 bottom: `${note.row * NOTE_HEIGHT_REM}rem`,
               }}
               onClick={() => {
+                if (useEditorStore.getState().playbackPlaying) {
+                  return
+                }
+
                 if (editorMode === 'delete') {
                   removeNote(note.id)
                 }

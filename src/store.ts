@@ -161,6 +161,7 @@ type SongState = {
     filename: string
   } | null
   setSong: (songFile: File | null) => Promise<void>
+  getSongFile: () => File | null
 }
 export const useSongStore = create(
   immer<SongState>((set) => ({
@@ -195,5 +196,6 @@ export const useSongStore = create(
         }
       })
     },
+    getSongFile: () => song,
   })),
 )

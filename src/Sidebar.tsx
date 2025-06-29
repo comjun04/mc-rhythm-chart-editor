@@ -1,6 +1,7 @@
 import { FC, useState } from 'react'
 import { useShallow } from 'zustand/shallow'
 
+import { saveFile } from './services/fileService'
 import { useChartStore, useEditorStore, useSongStore } from './store'
 import { Note } from './types'
 import { cn, getMultiplierToInteger } from './utils'
@@ -147,7 +148,12 @@ const Sidebar: FC<SidebarProps> = ({ open, onClose = () => {} }) => {
         <div className="mt-3 flex flex-col gap-1">
           <h5>Save/Load</h5>
           <div className="flex flex-row gap-2">
-            <button className="rounded bg-gray-900 px-3 py-1">Save</button>
+            <button
+              className="rounded bg-gray-900 px-3 py-1"
+              onClick={() => saveFile()}
+            >
+              Save
+            </button>
             <button className="rounded bg-gray-900 px-3 py-1">Load</button>
             <button
               className="rounded bg-blue-800 px-3 py-1"

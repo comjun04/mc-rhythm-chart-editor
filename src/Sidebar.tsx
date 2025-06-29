@@ -184,9 +184,12 @@ const Sidebar: FC<SidebarProps> = ({ open, onClose = () => {} }) => {
                 const subBeatsPerSecond = (bpm / 60) * 4
                 const tickrateMultiplier =
                   getMultiplierToInteger(subBeatsPerSecond)
-                const tickrate = Math.floor(
+                let tickrate = Math.floor(
                   subBeatsPerSecond * tickrateMultiplier,
                 )
+                if (tickrate < 20) {
+                  tickrate *= Math.ceil(20 / tickrate)
+                }
 
                 const sortedNotesByLane: Note[][] = [[], [], [], [], []]
                 const transformedDataArr: (number | 'l')[][] = [

@@ -1,7 +1,7 @@
 import { FC, useState } from 'react'
 import { useShallow } from 'zustand/shallow'
 
-import { useChartStore, useEditorStore } from './store'
+import { useChartStore, useEditorStore, useSongStore } from './store'
 import { Note } from './types'
 import { cn, getMultiplierToInteger } from './utils'
 
@@ -24,6 +24,7 @@ const Sidebar: FC<SidebarProps> = ({ open, onClose = () => {} }) => {
       setPlaybackStatus: state.setPlaybackStatus,
     })),
   )
+  const songMetadata = useSongStore((state) => state.songMetadata)
 
   const [tempBpm, setTempBpm] = useState(bpm)
 
@@ -47,6 +48,48 @@ const Sidebar: FC<SidebarProps> = ({ open, onClose = () => {} }) => {
         <h3 className="text-xl">Sidebar</h3>
 
         <div className="mt-6 flex flex-col gap-1">
+          <h5>Song</h5>
+          <div className="flex flex-col items-start gap-2">
+            {songMetadata != null ? (
+              <>
+                <span>{songMetadata.filename}</span>
+                <button
+                  className="rounded bg-red-700 px-3 py-1"
+                  onClick={() => {
+                    if (window.confirm('Are you sure to remove the song?')) {
+                      useSongStore.getState().setSong(null)
+                    }
+                  }}
+                >
+                  Remove
+                </button>
+              </>
+            ) : (
+              <button
+                className="rounded bg-gray-900 px-3 py-1"
+                onClick={() => {
+                  const inputElement = document.createElement('input')
+                  inputElement.type = 'file'
+                  inputElement.accept = 'audio/*'
+                  inputElement.onchange = (evt) => {
+                    const file = (evt.target as HTMLInputElement).files?.[0]
+                    if (file == null) {
+                      return
+                    }
+
+                    useSongStore.getState().setSong(file).catch(console.error)
+                  }
+
+                  inputElement.click()
+                }}
+              >
+                Add Song
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div className="mt-3 flex flex-col gap-1">
           <h5>Song BPM</h5>
           <div className="flex flex-row gap-2">
             <input

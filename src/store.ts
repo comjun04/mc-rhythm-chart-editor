@@ -1,3 +1,4 @@
+import { Howl } from 'howler'
 import { nanoid } from 'nanoid'
 import { create } from 'zustand'
 import { immer } from 'zustand/middleware/immer'
@@ -130,16 +131,69 @@ export const useEditorStore = create(
             state.playbackTime = 0
           }
           state.playbackPlaying = true
+
+          songHowl?.play()
         } else if (status === 'pause') {
           state.playbackPlaying = false
+
+          songHowl?.pause()
         } else {
           state.playbackPlaying = false
           state.playbackStarted = false
+
+          songHowl?.stop()
         }
       }),
     addPlaybackTime: (time) =>
       set((state) => {
         state.playbackTime += time
       }),
+  })),
+)
+
+// song store
+
+let song: File | null = null
+let songHowl: Howl | null = null
+
+type SongState = {
+  songMetadata: {
+    filename: string
+  } | null
+  setSong: (songFile: File | null) => Promise<void>
+}
+export const useSongStore = create(
+  immer<SongState>((set) => ({
+    songMetadata: null,
+    setSong: async (songFile) => {
+      if (songFile == null) {
+        songHowl?.unload()
+        songHowl = null
+        song = null
+        return set((state) => {
+          state.songMetadata = null
+        })
+      }
+
+      const fileReader = new FileReader()
+      const base64DataUrl = await new Promise<string>((resolve) => {
+        fileReader.onload = (evt) => {
+          resolve(evt.target!.result as string)
+        }
+        fileReader.readAsDataURL(songFile)
+      })
+
+      const howl = new Howl({ src: base64DataUrl, format: ['mp3'] })
+
+      songHowl?.unload()
+      songHowl = howl
+      song = songFile
+
+      set((state) => {
+        state.songMetadata = {
+          filename: songFile.name,
+        }
+      })
+    },
   })),
 )

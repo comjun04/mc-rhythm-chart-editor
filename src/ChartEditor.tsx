@@ -135,7 +135,7 @@ const ChartEditor = () => {
         <div
           className={cn(
             'absolute z-0 flex w-full flex-col',
-            !playbackStarted && 'pb-24',
+            !playbackStarted && 'pb-32',
           )}
         >
           {[...Array(sectorCount)].map((_, idx) => {

@@ -17,6 +17,9 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      fraction.js:
+        specifier: ^5.2.2
+        version: 5.2.2
       howler:
         specifier: ^2.2.4
         version: 2.2.4
@@ -973,6 +976,10 @@ packages:
 
   fraction.js@4.3.7:
     resolution: {integrity: sha512-ZsDfxO51wGAXREY55a7la9LScWpwv9RxIrYABrlvOFBlH/ShPnrtsXeuUIfXKKOVicNxQ+o8JTbJvjS4M89yew==}
+
+  fraction.js@5.2.2:
+    resolution: {integrity: sha512-uXBDv5knpYmv/2gLzWQ5mBHGBRk9wcKTeWu6GLTUEQfjCxO09uM/mHDrojlL+Q1mVGIIFo149Gba7od1XPgSzQ==}
+    engines: {node: '>= 12'}
 
   fsevents@2.3.3:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
@@ -2420,6 +2427,8 @@ snapshots:
       signal-exit: 4.1.0
 
   fraction.js@4.3.7: {}
+
+  fraction.js@5.2.2: {}
 
   fsevents@2.3.3:
     optional: true

@@ -4,7 +4,7 @@ import { useShallow } from 'zustand/shallow'
 import { loadFile, saveFile } from './services/fileService'
 import { useChartStore, useEditorStore, useSongStore } from './store'
 import { Note } from './types'
-import { cn, getMultiplierToInteger } from './utils'
+import { cn, getIntegerMultiplier } from './utils'
 
 type SidebarProps = {
   open: boolean
@@ -183,7 +183,7 @@ const Sidebar: FC<SidebarProps> = ({ open, onClose = () => {} }) => {
                 const { notes, bpm } = useChartStore.getState()
                 const subBeatsPerSecond = (bpm / 60) * 4
                 const tickrateMultiplier =
-                  getMultiplierToInteger(subBeatsPerSecond)
+                  getIntegerMultiplier(subBeatsPerSecond)
                 let tickrate = Math.floor(
                   subBeatsPerSecond * tickrateMultiplier,
                 )

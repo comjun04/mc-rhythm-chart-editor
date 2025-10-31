@@ -8,6 +8,7 @@ export type Note = {
 
 export type SongMetadata = {
   filename: string
+  duration: number // song duration in seconds
 }
 
 export type ChartJsonFile = {

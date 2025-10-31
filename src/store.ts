@@ -200,6 +200,15 @@ export const useSongStore = create(
       })
 
       const howl = new Howl({ src: base64DataUrl, format: ['mp3'] })
+      if (howl.state() === 'loading') {
+        // wait for howler to finish loading
+        await new Promise((resolve) => {
+          howl.onload = () => {
+            resolve()
+            howl.onload = undefined
+          }
+        })
+      }
 
       songHowl?.unload()
       songHowl = howl
@@ -208,6 +217,7 @@ export const useSongStore = create(
       set((state) => {
         state.songMetadata = {
           filename: song.filename,
+          duration: howl.duration(),
         }
       })
     },

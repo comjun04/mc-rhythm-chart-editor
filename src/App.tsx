@@ -3,6 +3,7 @@ import { LuMenu } from 'react-icons/lu'
 
 import ChartEditor from './ChartEditor'
 import Sidebar from './Sidebar'
+import Player from './components/Player'
 
 function App() {
   const [sidebarOpened, setSidebarOpened] = useState(false)
@@ -20,7 +21,12 @@ function App() {
       </nav>
 
       <div className="relative mt-12 h-full overflow-x-hidden sm:flex sm:flex-row">
-        <ChartEditor />
+        <div className="relative h-full pb-12">
+          <ChartEditor />
+          <div className="fixed bottom-0 z-30 w-full">
+            <Player />
+          </div>
+        </div>
         <Sidebar open={sidebarOpened} onClose={() => setSidebarOpened(false)} />
       </div>
     </div>

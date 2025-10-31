@@ -1,4 +1,5 @@
-import { type FC } from 'react'
+import { raf } from '@react-spring/rafz'
+import { type FC, useEffect, useRef, useState } from 'react'
 import { LuPause, LuPlay, LuSquare } from 'react-icons/lu'
 import { useShallow } from 'zustand/shallow'
 
@@ -6,17 +7,54 @@ import { useEditorStore, useSongStore } from '../store'
 import { Slider } from './ui/Slider'
 
 const Player: FC = () => {
-  const { playbackStarted, playbackPlaying, setPlaybackStatus, playbackTime } =
-    useEditorStore(
-      useShallow((state) => ({
-        playbackStarted: state.playbackStarted,
-        playbackPlaying: state.playbackPlaying,
-        setPlaybackStatus: state.setPlaybackStatus,
+  const {
+    playbackStarted,
+    playbackPlaying,
+    setPlaybackStatus,
+    playbackTime,
+    addPlaybackTime,
+    setPlaybackTime,
+  } = useEditorStore(
+    useShallow((state) => ({
+      playbackStarted: state.playbackStarted,
+      playbackPlaying: state.playbackPlaying,
+      setPlaybackStatus: state.setPlaybackStatus,
 
-        playbackTime: state.playbackTime,
-      })),
-    )
+      playbackTime: state.playbackTime,
+      addPlaybackTime: state.addPlaybackTime,
+      setPlaybackTime: state.setPlaybackTime,
+    })),
+  )
   const songMetadata = useSongStore((state) => state.songMetadata)
+
+  const [sliderValueManuallyChanging, setSliderValueManuallyChanging] =
+    useState(false)
+  const [sliderTempValue, setSliderTempValue] = useState(0)
+
+  const lastUpdatedTime = useRef(performance.now())
+
+  useEffect(() => {
+    const loop = () => {
+      const now = performance.now()
+      const diff = performance.now() - lastUpdatedTime.current
+      addPlaybackTime(diff)
+      lastUpdatedTime.current = now
+
+      if (useEditorStore.getState().playbackPlaying) {
+        return true
+      }
+    }
+
+    if (playbackPlaying) {
+      console.log('starting playback loop')
+      lastUpdatedTime.current = performance.now()
+      raf(loop)
+    }
+
+    return () => {
+      raf.cancel(loop)
+    }
+  }, [playbackPlaying])
 
   const len = songMetadata?.duration ?? 0
   const percent = (playbackTime / ((songMetadata?.duration ?? 1) * 1000)) * 100
@@ -34,7 +72,22 @@ const Player: FC = () => {
         <LuSquare size={24} />
       </button>
 
-      <Slider value={[percent]} />
+      <Slider
+        value={sliderValueManuallyChanging ? [sliderTempValue] : [percent]}
+        onPointerDown={() => {
+          setSliderValueManuallyChanging(true)
+        }}
+        onValueChange={(values) => {
+          setSliderTempValue(values[0])
+        }}
+        onValueCommit={(values) => {
+          setSliderValueManuallyChanging(false)
+
+          const percent = values[0]
+          const newTime = (len / 100) * percent * 1000
+          setPlaybackTime(newTime)
+        }}
+      />
     </div>
   )
 }

@@ -118,6 +118,7 @@ type EditorState = {
   playbackTime: number
   setPlaybackStatus: (status: 'play' | 'pause' | 'stop') => void
   addPlaybackTime: (time: number) => void
+  setPlaybackTime: (time: number) => void
 }
 export const useEditorStore = create(
   immer<EditorState>((set) => ({
@@ -165,6 +166,12 @@ export const useEditorStore = create(
       set((state) => {
         state.playbackTime += time
       }),
+    setPlaybackTime: (time) =>
+      set((state) => {
+        state.playbackTime = time
+
+        songHowl?.seek(time / 1000)
+      }),
   })),
 )
 
@@ -202,11 +209,10 @@ export const useSongStore = create(
       const howl = new Howl({ src: base64DataUrl, format: ['mp3'] })
       if (howl.state() === 'loading') {
         // wait for howler to finish loading
-        await new Promise((resolve) => {
-          howl.onload = () => {
+        await new Promise<void>((resolve) => {
+          howl.once('load', () => {
             resolve()
-            howl.onload = undefined
-          }
+          })
         })
       }
 

@@ -1,5 +1,4 @@
-import { raf } from '@react-spring/rafz'
-import { FC, useEffect, useRef } from 'react'
+import { FC } from 'react'
 import { useShallow } from 'zustand/shallow'
 
 import { useChartStore, useEditorStore } from '../store'
@@ -18,31 +17,6 @@ const PlaybackLine: FC = () => {
       bpm: state.bpm,
     })),
   )
-
-  const lastUpdatedTime = useRef(performance.now())
-
-  useEffect(() => {
-    const loop = () => {
-      const now = performance.now()
-      const diff = performance.now() - lastUpdatedTime.current
-      addPlaybackTime(diff)
-      lastUpdatedTime.current = now
-
-      if (useEditorStore.getState().playbackPlaying) {
-        return true
-      }
-    }
-
-    if (playbackPlaying) {
-      console.log('starting playback loop')
-      lastUpdatedTime.current = performance.now()
-      raf(loop)
-    }
-
-    return () => {
-      raf.cancel(loop)
-    }
-  }, [playbackPlaying])
 
   return (
     <hr

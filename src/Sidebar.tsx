@@ -46,110 +46,112 @@ const Sidebar: FC<SidebarProps> = ({ open, onClose = () => {} }) => {
       />
       <div
         className={cn(
-          'fixed right-0 top-0 z-30 h-full w-[80vw] bg-neutral-800 p-4 transition duration-200 sm:static sm:w-72',
+          'fixed right-0 top-0 z-30 flex h-full w-[80vw] flex-col gap-2 bg-neutral-800 p-2 transition duration-200 sm:static sm:w-72',
           !open && 'translate-x-full sm:translate-x-0',
         )}
       >
-        <h3 className="text-xl">Sidebar</h3>
+        <div className="flex flex-col gap-2 rounded bg-neutral-700 p-2">
+          <h4 className="font-semibold">Song</h4>
 
-        <div className="mt-6 flex flex-col gap-1">
-          <h5>Song</h5>
-          <div className="flex flex-col items-start gap-2">
-            {songMetadata != null ? (
-              <>
-                <span>{songMetadata.filename}</span>
+          <div className="flex flex-col gap-1">
+            <div className="flex flex-col items-start gap-2">
+              {songMetadata != null ? (
+                <>
+                  <span>{songMetadata.filename}</span>
+                  <button
+                    className={cn(
+                      'rounded bg-red-700 px-3 py-1',
+                      controlsDisabled && 'opacity-70',
+                    )}
+                    onClick={() => {
+                      if (window.confirm('Are you sure to remove the song?')) {
+                        useSongStore.getState().setSong(null)
+                      }
+                    }}
+                    disabled={controlsDisabled}
+                  >
+                    Remove
+                  </button>
+                </>
+              ) : (
                 <button
                   className={cn(
-                    'rounded bg-red-700 px-3 py-1',
+                    'rounded bg-gray-900 px-3 py-1',
                     controlsDisabled && 'opacity-70',
                   )}
                   onClick={() => {
-                    if (window.confirm('Are you sure to remove the song?')) {
-                      useSongStore.getState().setSong(null)
+                    const inputElement = document.createElement('input')
+                    inputElement.type = 'file'
+                    inputElement.accept = 'audio/*'
+                    inputElement.onchange = (evt) => {
+                      const file = (evt.target as HTMLInputElement).files?.[0]
+                      if (file == null) {
+                        return
+                      }
+
+                      useSongStore
+                        .getState()
+                        .setSong({ songBlob: file, filename: file.name })
+                        .catch(console.error)
                     }
+
+                    inputElement.click()
                   }}
                   disabled={controlsDisabled}
                 >
-                  Remove
+                  Add Song
                 </button>
-              </>
-            ) : (
+              )}
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <h5>Song BPM</h5>
+            <div className="flex flex-row gap-2">
+              <input
+                type="number"
+                min={0}
+                step={0.01}
+                placeholder="BPM"
+                className={cn(
+                  'w-20 bg-gray-900 p-1 text-end',
+                  controlsDisabled && 'opacity-70',
+                )}
+                value={tempBpm}
+                onChange={(evt) => setTempBpm(Number(evt.target.value))}
+                disabled={controlsDisabled}
+              />
               <button
                 className={cn(
-                  'rounded bg-gray-900 px-3 py-1',
+                  'rounded bg-green-700 px-3 py-1',
                   controlsDisabled && 'opacity-70',
                 )}
                 onClick={() => {
-                  const inputElement = document.createElement('input')
-                  inputElement.type = 'file'
-                  inputElement.accept = 'audio/*'
-                  inputElement.onchange = (evt) => {
-                    const file = (evt.target as HTMLInputElement).files?.[0]
-                    if (file == null) {
-                      return
-                    }
-
-                    useSongStore
-                      .getState()
-                      .setSong({ songBlob: file, filename: file.name })
-                      .catch(console.error)
+                  const result = setBpm(tempBpm)
+                  if (!result) {
+                    window.alert('[!] Failed to set BPM')
                   }
-
-                  inputElement.click()
                 }}
                 disabled={controlsDisabled}
               >
-                Add Song
+                Apply
               </button>
-            )}
+              <button
+                className={cn(
+                  'rounded bg-red-700 px-3 py-1',
+                  controlsDisabled && 'opacity-70',
+                )}
+                onClick={() => setTempBpm(bpm)}
+                disabled={controlsDisabled}
+              >
+                Reset
+              </button>
+            </div>
           </div>
         </div>
 
-        <div className="mt-3 flex flex-col gap-1">
-          <h5>Song BPM</h5>
-          <div className="flex flex-row gap-2">
-            <input
-              type="number"
-              min={0}
-              step={0.01}
-              placeholder="BPM"
-              className={cn(
-                'w-20 bg-gray-900 p-1 text-end',
-                controlsDisabled && 'opacity-70',
-              )}
-              value={tempBpm}
-              onChange={(evt) => setTempBpm(Number(evt.target.value))}
-              disabled={controlsDisabled}
-            />
-            <button
-              className={cn(
-                'rounded bg-green-700 px-3 py-1',
-                controlsDisabled && 'opacity-70',
-              )}
-              onClick={() => {
-                const result = setBpm(tempBpm)
-                if (!result) {
-                  window.alert('[!] Failed to set BPM')
-                }
-              }}
-              disabled={controlsDisabled}
-            >
-              Apply
-            </button>
-            <button
-              className={cn(
-                'rounded bg-red-700 px-3 py-1',
-                controlsDisabled && 'opacity-70',
-              )}
-              onClick={() => setTempBpm(bpm)}
-              disabled={controlsDisabled}
-            >
-              Reset
-            </button>
-          </div>
-        </div>
-        <div className="mt-3 flex flex-col gap-1">
-          <h5>Save/Load</h5>
+        <div className="flex flex-col gap-2 rounded bg-neutral-700 p-2">
+          <h4 className="font-semibold">Save/Load</h4>
           <div className="flex flex-row gap-2">
             <button
               className="rounded bg-gray-900 px-3 py-1"
@@ -252,35 +254,8 @@ const Sidebar: FC<SidebarProps> = ({ open, onClose = () => {} }) => {
             </button>
           </div>
         </div>
-        <div className="mt-3 flex flex-col gap-1">
-          <h5>Preview</h5>
-          <div className="flex flex-row gap-2">
-            {playbackPlaying ? (
-              <button
-                className="rounded bg-gray-900 px-3 py-1"
-                onClick={() => setPlaybackStatus('pause')}
-              >
-                Pause
-              </button>
-            ) : (
-              <button
-                className="rounded bg-gray-900 px-3 py-1"
-                onClick={() => setPlaybackStatus('play')}
-              >
-                Play
-              </button>
-            )}
 
-            <button
-              className="rounded bg-red-900 px-3 py-1"
-              onClick={() => setPlaybackStatus('stop')}
-            >
-              Stop
-            </button>
-          </div>
-        </div>
-
-        <div className="mt-3 flex flex-col gap-1">
+        <div className="flex flex-col gap-1">
           <h5>Misc</h5>
           <div className="flex flex-row gap-2">
             <button

@@ -9,8 +9,8 @@ function App() {
   const [sidebarOpened, setSidebarOpened] = useState(false)
 
   return (
-    <div className="relative h-full">
-      <nav className="fixed top-0 flex w-full flex-row items-center bg-neutral-900 p-3">
+    <div className="flex h-full flex-col">
+      <nav className="flex w-full flex-row items-center bg-neutral-900 p-3">
         <h2 className="grow text-xl">Chart Editor</h2>
         <button
           className="sm:hidden"
@@ -20,10 +20,10 @@ function App() {
         </button>
       </nav>
 
-      <div className="relative mt-12 h-full overflow-x-hidden sm:flex sm:flex-row">
-        <div className="relative h-full pb-12">
+      <div className="relative h-full overflow-x-hidden sm:flex sm:flex-row">
+        <div className="relative h-full grow pb-12">
           <ChartEditor />
-          <div className="fixed bottom-0 z-30 w-full">
+          <div className="absolute bottom-0 z-30 w-full">
             <Player />
           </div>
         </div>

@@ -3,7 +3,7 @@ import { type FC, useEffect, useRef, useState } from 'react'
 import { LuPause, LuPlay, LuSquare } from 'react-icons/lu'
 import { useShallow } from 'zustand/shallow'
 
-import { useEditorStore, useSongStore } from '../store'
+import { useChartStore, useEditorStore, useSongStore } from '../store'
 import { Slider } from './ui/Slider'
 
 const Player: FC = () => {
@@ -23,6 +23,12 @@ const Player: FC = () => {
       playbackTime: state.playbackTime,
       addPlaybackTime: state.addPlaybackTime,
       setPlaybackTime: state.setPlaybackTime,
+    })),
+  )
+  const { bpm, sectorCount } = useChartStore(
+    useShallow((state) => ({
+      bpm: state.bpm,
+      sectorCount: state.sectorCount,
     })),
   )
   const songMetadata = useSongStore((state) => state.songMetadata)
@@ -56,8 +62,11 @@ const Player: FC = () => {
     }
   }, [playbackPlaying])
 
-  const len = songMetadata?.duration ?? 0
-  const percent = (playbackTime / ((songMetadata?.duration ?? 1) * 1000)) * 100
+  const len = Math.max(
+    songMetadata?.duration ?? 0,
+    sectorCount * 4 * (60 / bpm),
+  )
+  const percent = (playbackTime / (len * 1000)) * 100
 
   return (
     <div className="flex h-12 w-full flex-row items-center gap-2 bg-neutral-700/80 px-4">

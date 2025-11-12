@@ -55,7 +55,7 @@ const ChartEditor = () => {
       scrollElementRef.current?.scroll({
         top:
           scrollElementRef.current.scrollHeight -
-          (window.innerHeight / 10) * 8 -
+          (window.innerHeight / 10) * 8 - // 80% height position of window top
           (getHeightRemPerSecond(bpm) * 16 * playbackTime) / 1000,
       })
 
@@ -158,13 +158,6 @@ const ChartEditor = () => {
 
           {playbackStarted && (
             <>
-              <div
-                style={{
-                  height: `${sectorHeightRem * 2}rem`,
-                  bottom: 0,
-                }}
-              />
-
               {/* Preview playback line */}
               <PlaybackLine />
             </>
